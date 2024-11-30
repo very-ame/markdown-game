@@ -1,0 +1,454 @@
+<style>
+    /* page title */
+    .game-title {
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    /* default text */
+    .defaultText {
+        opacity: 1;
+    }
+
+    /* gameplay button */
+    .playButton {
+        display: inline-block;
+        padding: 5px 100px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        color: white;
+        background-color: #666;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .playButton:hover {
+        background-color: #444;
+    }
+
+    .playButton:active {
+        background-color: #777
+    }
+
+    /* normal text */
+    .text {
+        display: inline-block;
+    }
+
+    /* user input */
+    .input-wrapper,
+    .fade {
+        display: none;
+        opacity: 0;
+    }
+
+    .input-form {
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .input-text {
+        height: 100%;
+        width: 60vw;
+        margin-left: 5px;
+    }
+
+    input-button {
+        height: 100%;
+        width: 30px;
+        opacity: 1;
+    }
+
+    /* waiting for ai response */
+    .waiting-msg {
+        animation: blink-waiting-msg 3s infinite;
+    }
+
+    @keyframes blink-waiting-msg {
+
+        0%,
+        100% {
+            opacity: 0;
+        }
+
+        20%,
+        80% {
+            opacity: 1;
+        }
+    }
+
+    /* utils */
+    .hidden {
+        display: none;
+    }
+
+    .blink::after {
+        content: '';
+        display: inline-block;
+        overflow: visible;
+        width: 0.07em;
+        height: 1.2em;
+        background-color: #696969;
+        vertical-align: middle;
+        animation: blink-caret 1s step-end infinite;
+    }
+
+    @keyframes blink-caret {
+
+        from,
+        to {
+            background-color: transparent;
+        }
+
+        50% {
+            background-color: #696969;
+        }
+    }
+</style>
+
+<script>
+
+    // utils
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // transitions
+    async function fadeIn(element, duration, display = "inline-block") {
+        element.style.opacity = "0";
+        element.style.display = display;
+        getComputedStyle(element).opacity;
+        element.style.transition = `opacity ${duration}ms ease`;
+        requestAnimationFrame(() => {
+            element.style.opacity = "1";
+        });
+        return new Promise(resolve => {
+            element.addEventListener("transitionend", () => { resolve(); }, { once: true });
+        });
+    }
+
+    async function fadeOut(element, duration) {
+        return new Promise(resolve => {
+            element.style.pointerEvents = "none";
+            element.style.transition = `opacity ${duration}ms ease`;
+            element.style.opacity = "0";
+            element.addEventListener("transitionend", () => resolve(), { once: true });
+        });
+    }
+
+    async function slideOut(element, duration) {
+        return new Promise(resolve => {
+            element.style.transition = `transform ${duration}ms ease, opacity ${duration}ms ease`;
+            element.style.willChange = "transform, opacity";
+            element.style.transform = "translateX(0)";
+            element.style.opacity = "1";
+
+            requestAnimationFrame(() => {
+                element.style.transform = "translateX(50%)";
+                element.style.opacity = "0";
+            });
+
+            element.addEventListener("transitionend", () => {
+                element.style.display = "none";
+                element.style.willChange = "";
+                resolve();
+            }, { once: true });
+        });
+    }
+
+    // display text with typewriter effect
+    function typeWriterEffect(element, text, interval) {
+        return new Promise(resolve => {
+            let index = 0;
+            function addNextCharacter() {
+                if (index < text.length) {
+                    const char = text.charAt(index) == " " ? "&nbsp;" : text.charAt(index);
+                    element.innerHTML += char;
+                    index++;
+                    setTimeout(addNextCharacter, interval);
+                } else {
+                    resolve();
+                }
+            }
+            element.innerHTML = "";
+            addNextCharacter();
+        });
+    }
+
+    class Display {
+        constructor() {
+            this.element = null;
+        }
+
+        async typeWrite(id, text, interval = 100, postFreeze = 100) {
+            // remove blink effect from previous element
+            if (this.element) {
+                this.element.classList.remove("blink");
+            }
+
+            // get new element
+            this.element = document.getElementById(id);
+            if (this.element) {
+                this.element.classList.remove("hidden");
+                this.element.classList.add("blink");
+            }
+            await typeWriterEffect(this.element, text, interval);
+            await sleep(postFreeze);
+        }
+    }
+
+    function parseResponse(inputString) {
+        try {
+            const result = JSON.parse(inputString);
+            const validKeys = Array.from({ length: 11 }, (_, i) => i.toString());
+
+            const keys = Object.keys(result);
+            const allKeysValid = keys.every(key => validKeys.includes(key));
+
+            if (!allKeysValid) {
+                console.error("不正なキーが含まれています: ", keys);
+                return null;
+            }
+
+            return result;
+        } catch (error) {
+            console.error("文字列を辞書に変換できませんでした:", error);
+            return null;
+        }
+    }
+
+    async function getAndParseResponseFromAI(serverAI, promptToAI, maxAttempts = 5) {
+        let attempts = 0;
+        console.log("AIからのレスポンスを取得中...。");
+        // console.log(`プロンプト: ${promptToAI}`);
+
+        while (attempts < maxAttempts) {
+            // call AI
+            callAI = true;
+            let response = '';
+            if (callAI) {
+                response = await serverAI.getAnswerText("<id-for-your-ai>", "", promptToAI);
+            } else {
+                await sleep(4000);
+                // dummy response
+                response = '{"0": "（これはデバッグ用の文章です...。本来は表示されないはずです。）突然のにわか雨。わたしは木の下に駆け込んで雨宿りをしていた。", "1": "私「最悪…。お気に入りの服なのに。」", "2": "木の下でひとりたたずむ私。降り出したばかりだから雨がしのげているけど、激しくなってきたらここじゃ雨宿りにならない。どこか別の場所を探さなきゃ…。そんなことを考えていると、不意に私に話しかけてくる声がした。", "3": "大園「こんなところで何してんの？濡れてんじゃん。」", "4": "私「なんでいるんですか？」", "5": "大園「たまたま通りかかっただけだよ。傘、入っていく？」", "6": "彼は大学の先輩の大園さん。なぜかいつも私の前に現れる、謎の存在。最近、私が少し彼のことが気になっている。", "7": "私「いいえ、大丈夫です。悪いですし、その傘に二人入ったらふたりとも濡れちゃいます。」", "8": "大園さんのことは気になっていたが、いきなり相合傘する気にはなれなかった。", "9": "大園「気にすんなって。雨はしばらく止まないみたいだし、せっかく会ったのにここで置いてくのも薄情でしょ。」", "10": "...彼の傘の中に入っていこうかな？"}';
+            }
+            console.log("AIからのレスポンスを受け取りました。");
+            console.log(response);
+            const parsedResponse = parseResponse(response);
+
+            if (!parsedResponse) {
+                attempts++;
+            } else {
+                return parsedResponse;
+            }
+        }
+        console.error("AIからの正しいレスポンスを取得できませんでした");
+        return null;
+    }
+
+    function preventBrackets(inputString) {
+        return inputString.replace(/{/g, '｛').replace(/}/g, '｝');
+    }
+
+    // game start
+    async function fadeOutDefaultText() {
+        const playButton = document.getElementById("playButton");
+        const defaultText = document.getElementById("defaultText");
+        await fadeOut(defaultText, 200);
+        defaultText.style.display = "none";
+        await fadeOut(playButton, 200);
+        playButton.style.display = "none";
+    }
+
+    class Story {
+        constructor(display) {
+            this.display = display;
+            this.serverAI = new ServerAI();
+
+            // contents
+            this.prologueResponse = null;
+            this.firstChapterText = null;
+            this.firstChapterResponse = null;
+            this.secondChapterText = null;
+            this.secondChapterResponse = null;
+            this.thirdChapterText = null;
+
+            // recommended keywords
+            this.recommendedKeywords = ["剣と魔法のファンタジー世界で魔物討伐", "個人経営の本屋さんで、今日もアルバイト", "今日も明日も日なたでごろごろするにゃー", "隣人を殺してしまった。死体をどう隠すか？", "陸上部、水泳部、どっちに入ろうか？", "気に入らないやつをツイッターで炎上させるぞ", "私はメガネをかけたままトップアイドルになる", "魔法が使えると言ったが、あれは嘘だ", "久しぶりに何かを破壊すると、やはり楽しい", "シルバーコレクターからの脱却", "初めてのフルートは、音が鳴らなかった", "どうやったらここまでゴミ屋敷になんねん", "毎日が25時間だったら一時間が57分になるだけ", "自分がイカになるタイプのイカゲーム", "家の壁を順に壊していく", "壁一面をショッキングピングで塗った", "1677万色に光るゲーミング水着は、水に浸かっても壊れないのか？"];
+        }
+
+        // handle user input and ai response
+        // - show input box and button, hide after user input, show user input with typewriter effect
+        // - show waiting message, hide after ai response
+        async handleUserInput(idRoot, chapter) {
+            const inputWrapper = document.getElementById(idRoot);
+            const inputForm = document.getElementById(`${idRoot}-form`);
+            const inputText = document.getElementById(`${idRoot}-text`);
+            const inputButton = document.getElementById(`${idRoot}-button`);
+            const waitingMsg = document.getElementById(`${idRoot}-waiting`);
+
+            await fadeIn(inputWrapper, 1000, "inline");
+
+            return new Promise(resolve => {
+                inputButton.addEventListener("click", async event => {
+                    // remove input form
+                    inputButton.disabled = true;
+                    const inputTextValue = inputText.value;
+                    await slideOut(inputForm, 1000);
+                    // show input message with typewriter effect
+                    await this.display.typeWrite(`${idRoot}-show`, `「${inputTextValue}」`, 100, 100);
+
+                    // prepare prompt to AI
+                    let promptToAI = "";
+                    if (chapter == "firstChapter") {
+                        this.prologueResponse = inputTextValue;
+                        promptToAI = `それでは、第一章の生成をしてください。今は第二章、第三章を生成する必要はありません。可能なら、ストーリーのテーマについて、「${preventBrackets(this.prologueResponse)}」のようなものにしてください。念を押しますが、出力の形式はJSON.parseで読めるような、ただのStringにしてください。決してコードブロックを用いず、ただの文字列の型で辞書を返してください。第一章、第二章について、キーは"0"から"10"の数字で、"0"から"9"が順に7つの「文章」、"10"が「行動選択の質問」です。`
+                    } else if (chapter == "secondChapter") {
+                        this.firstChapterResponse = inputTextValue;
+                        promptToAI = `それでは、第二章の生成をしてください。今は第三章を生成する必要はありません。第一章の内容は次のようでした。${preventBrackets(JSON.stringify(this.firstChapterText))}。それに対して、あなたは次のように反応しました。「${preventBrackets(this.firstChapterResponse)}」。第一章のストーリーと、あなたの反応を受けて、規定の書式で第二章を出力してください。必ず、あなたの反応を無視することなく、次の展開に含めることに注意してください。第二章は話の展開です。第一章と同じだけの平凡な展開は避けてください。念を押しますが、出力の形式はJSON.parseで読めるような、ただのStringにしてください。決してコードブロックを用いず、ただの文字列の型で辞書を返してください。第一章、第二章について、キーは"0"から"10"の数字で、"0"から"9"が順に7つの「文章」、"10"が「行動選択の質問」です。`
+                    } else if (chapter == "thirdChapter") {
+                        this.secondChapterResponse = inputTextValue;
+                        promptToAI = `それでは、第三章の生成をしてください。第一章の内容は次のようでした。${preventBrackets(JSON.stringify(this.firstChapterText))}。それに対して、あなたは次のように反応しました。${preventBrackets(this.firstChapterResponse)}。第二章の内容は次のようでした。${preventBrackets(JSON.stringify(this.secondChapterText))}。それに対して、あなたは次のように反応しました。「${preventBrackets(this.secondChapterResponse)}」。これらを受けて、規定の書式で第三章を出力してください。第三章は結末ですから、話を終わらせてください。必ず、あなたの反応を無視することなく、次の展開に含めることに注意してください。また、第一章と第二章とは異なり、第三章では文のみの出力でよく、その後の行動選択はないことに注意してください。念を押しますが、出力の形式はJSON.parseで読めるような、ただのStringにしてください。決してコードブロックを用いず、ただの文字列の型で辞書を返してください。第三章については「行動選択の質問」が不必要なので、キーは"0"から"10"となり、全てがストーリーの記述です。`
+                    }
+
+                    // show waiting message
+                    waitingMsg.style.display = "inline";
+
+                    // call AI
+                    const response = await getAndParseResponseFromAI(this.serverAI, promptToAI);
+
+                    if (chapter == "firstChapter") {
+                        this.firstChapterText = response;
+                    } else if (chapter == "secondChapter") {
+                        this.secondChapterText = response;
+                    } else if (chapter == "thirdChapter") {
+                        this.thirdChapterText = response;
+                    }
+
+                    // remove waiting message
+                    waitingMsg.style.display = "none";
+
+                    resolve(response);
+                });
+            });
+        }
+
+        async typeWrite(id, text, usePreDots = false, interval = 100, postFreeze = 100) {
+            if (usePreDots) {
+                await this.display.typeWrite(id, `......`, 80, 100);
+            }
+            await this.display.typeWrite(id, text, interval, postFreeze);
+        }
+
+        getRandomUniqueItems(arr, count = 3) {
+            if (arr.length < count) {
+                throw new Error("リスト内の要素が少なすぎます。");
+            }
+            const shuffled = arr.slice().sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, count);
+        }
+
+        async prologue() {
+            await this.typeWrite("prologue-0", `神様「こんにちは」`, true, 50, 100);
+            await this.typeWrite("prologue-1", `神様「私は神様です。聞こえていますか？あなたはこれから、物語の世界に飛ばされることになってしまいました。」`, true, 50, 100);
+            await this.typeWrite("prologue-2", `神様「どんな物語がいいか、ご希望はありますか？教えてくだされば反映いたしましょう。」`, true, 50, 100);
+
+            const reconmmendedKeywordItems = document.getElementById("reconmmendedKeywordItems");
+            const selectedItems = this.getRandomUniqueItems(this.recommendedKeywords);
+            for (let i = 0; i < selectedItems.length; i++) {
+                document.getElementById(`prologue-key${i}`).innerText = selectedItems[i];
+            }
+
+            await fadeIn(reconmmendedKeywordItems, 1000, "inline");
+
+            const response = await this.handleUserInput("prologue-input-0", "firstChapter");
+            if (!response) {
+                await this.typeWrite("prologue-last", `すみませんが、物語の世界と接続できませんでした...。ぜひもう一度試してみてください。`, 80, 100);
+                return false
+            } else {
+                this.firstChapterText = response;
+                await this.typeWrite("prologue-last", `物語が始まります...`, 80, 100);
+                return true;
+            }
+        }
+
+        async firstChapter() {
+            const chapter = document.getElementById("chapter1");
+            await fadeIn(chapter, 1000, "inline");
+
+            for (const key in this.firstChapterText) {
+                await this.typeWrite(`chapter1-${key}`, this.firstChapterText[key], false, 100, 400);
+            }
+
+            const response = await this.handleUserInput("chapter1-input-0", "secondChapter");
+            if (!response) {
+                await this.typeWrite("chapter1-last", `すみませんが、正しく物語の世界と接続できませんでした...。物語はここで終了になってしまいます。ぜひもう一度はじめから試してみてください。`, 80, 100);
+                return false
+            } else {
+                return true;
+            }
+        }
+
+        async secondChapter() {
+            const chapter = document.getElementById("chapter2");
+            await fadeIn(chapter, 1000, "inline");
+
+            for (const key in this.secondChapterText) {
+                await this.typeWrite(`chapter2-${key}`, this.secondChapterText[key], false, 80, 400);
+            }
+
+            const response = await this.handleUserInput("chapter2-input-0", "thirdChapter");
+            if (!response) {
+                await this.typeWrite("chapter2-last", `すみませんが、正しく物語の世界と接続できませんでした...。物語はここで終了になってしまいます。ぜひもう一度はじめから試してみてください。`, 80, 100);
+                return false
+            } else {
+                return true;
+            }
+        }
+
+        async thirdChapter() {
+            const chapter = document.getElementById("chapter3");
+            await fadeIn(chapter, 1000, "inline");
+
+            for (const key in this.thirdChapterText) {
+                await this.typeWrite(`chapter3-${key}`, this.thirdChapterText[key], false, 80, 400);
+            }
+
+            this.typeWrite("chapter3-last", `終わり`, false, 80, 100);
+        }
+    }
+
+    // overall game
+    async function gamePlay() {
+        const display = new Display();
+        const story = new Story(display);
+        const chapters = ['prologue', 'firstChapter', 'secondChapter', 'thirdChapter'];
+
+        for (const chapter of chapters) {
+            console.log("start chapter: ", chapter);
+            const success = await story[chapter]();
+            if (!success) {
+                break;
+            }
+        }
+
+        await sleep(1000);
+        await fadeIn(document.getElementById("footer"), 1000);
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        document.getElementById("playButton").addEventListener("click", async function () {
+            await fadeOutDefaultText();
+            await gamePlay();
+        }, { once: true });
+    });
+
+</script>
