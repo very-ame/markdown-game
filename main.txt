@@ -1,0 +1,204 @@
+# <p class="game-title">Markdown Adventure</p>
+
+<!-- 開始ボタン -->
+<div class="playButton" id="playButton"> Click to Start Game </div>
+
+<!-- プロローグ -->
+<div id="prologue">
+
+<div><p id="prologue-0" class="text hidden">&nbsp;</p></div>
+<div><p id="prologue-1" class="text hidden">&nbsp;</p></div>
+<div><p id="prologue-2" class="text hidden">&nbsp;</p></div>
+<div id="reconmmendedKeywordItems" class="fade">
+&nbsp;
+
+おすすめキーワード：
+- <p id="prologue-key0" class="text">&nbsp;</p>
+- <p id="prologue-key1" class="text">&nbsp;</p>
+- <p id="prologue-key2" class="text">&nbsp;</p>
+
+</div>
+<div id="prologue-input-0" class="input-wrapper">
+<div id="prologue-input-0-form" class="input-form">
+<input type="text" id="prologue-input-0-text" class="input-text" placeholder="ストーリーのキーワードなど">
+<button type="button" id="prologue-input-0-button" class="input-button">→</button>
+</div>
+<div><p id="prologue-input-0-show" class="text hidden">&nbsp;</p></div>
+<div id="prologue-input-0-waiting" class="hidden waiting-msg">
+
+> 神様はとても遠くにいるので、声が届くのに時間がかかっています...。少し待っていてください。
+
+</div>
+</div>
+
+<div><p id="prologue-last" class="text hidden">&nbsp;</p></div>
+
+</div>
+
+<!-- 第一章 -->
+<div id="chapter1" class="fade">
+<div id="chapter1-title">
+
+&nbsp;
+
+## 第一章
+--------------------------
+
+</div>
+<div><p id="chapter1-0" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter1-1" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter1-2" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter1-3" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter1-4" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter1-5" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter1-6" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter1-7" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter1-8" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter1-9" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter1-10" class="text hidden">&nbsp;</p></div>
+<div id="chapter1-input-0" class="input-wrapper">
+<div id="chapter1-input-0-form" class="input-form">
+<input type="text" id="chapter1-input-0-text" class="input-text" placeholder="あなたのセリフを入力してください">
+<button type="button" id="chapter1-input-0-button" class="input-button">→</button>
+</div>
+<div><p id="chapter1-input-0-show" class="text hidden">&nbsp;</p></div>
+<div id="chapter1-input-0-waiting" class="hidden waiting-msg">
+
+> 物語の世界と通信しています...。少し待っていてください。
+
+</div>
+</div>
+
+
+<div><p id="chapter1-last" class="text hidden">&nbsp;</p></div>
+
+</div>
+
+<!-- 第二章 -->
+<div id="chapter2" class="fade">
+<div id="chapter2-title">
+
+&nbsp;
+
+## 第二章
+--------------------------
+
+</div>
+<div><p id="chapter2-0" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter2-1" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter2-2" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter2-3" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter2-4" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter2-5" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter2-6" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter2-7" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter2-8" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter2-9" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter2-10" class="text hidden">&nbsp;</p></div>
+<div id="chapter2-input-0" class="input-wrapper">
+<div id="chapter2-input-0-form" class="input-form">
+<input type="text" id="chapter2-input-0-text" class="input-text" placeholder="あなたのセリフを入力してください">
+<button type="button" id="chapter2-input-0-button" class="input-button">→</button>
+</div>
+<div><p id="chapter2-input-0-show" class="text hidden">&nbsp;</p></div>
+<div id="chapter2-input-0-waiting" class="hidden waiting-msg">
+
+> 物語の世界と通信しています...。少し待っていてください。
+
+</div>
+</div>
+
+
+<div><p id="chapter2-last" class="text hidden">&nbsp;</p></div>
+
+</div>
+
+<!-- 第三章 -->
+<div id="chapter3" class="fade">
+<div id="chapter3-title">
+
+&nbsp;
+
+## 第三章
+--------------------------
+
+</div>
+<div><p id="chapter3-0" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter3-1" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter3-2" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter3-3" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter3-4" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter3-5" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter3-6" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter3-7" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter3-8" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter3-9" class="text hidden">&nbsp;</p></div>
+<div><p id="chapter3-10" class="text hidden">&nbsp;</p></div>
+<div id="chapter3-input-0" class="input-wrapper">
+<div id="chapter3-input-0-form" class="input-form">
+<input type="text" id="chapter3-input-0-text" class="input-text" placeholder="あなたのセリフを入力してください">
+<button type="button" id="chapter3-input-0-button" class="input-button">→</button>
+</div>
+<div><p id="chapter3-input-0-show" class="text hidden">&nbsp;</p></div>
+<div id="chapter3-input-0-waiting" class="hidden waiting-msg">
+
+> 物語の世界と通信しています...。少し待っていてください。
+
+</div>
+</div>
+
+&nbsp;
+
+<div><p id="chapter3-last" class="text hidden">&nbsp;</p></div>
+
+</div>
+
+<!-- デフォルトのテキスト -->
+<div class="defaultText" id="defaultText" style="position: absolute">
+&nbsp;
+
+## <p>マークダウンとは？</p>
+----------
+
+Markdown（マークダウン）は、文章を書くときに「見出し」や「箇条書き」、「リンク」などを簡単に書けるルールのことです。特別なソフトがいらず、パソコンでもスマホでも使えます。ブログやノート、レポートを書くときなどに便利です。
+
+
+## <p>マークダウンの良さ：簡単で覚えやすい</p>
+----------
+
+特定の記号を使うだけで、文章に装飾をつけられます。たとえば、#を使うと見出しに、-を使うと箇条書きになります。
+
+```
+# タイトル
+- リスト1
+- リスト2
+> 引用
+[リンク](リンク先のURL)
+```
+
+
+## <p>なぜMarkdownを使うべきか</p>
+----------
+
+文章を書く効率を上げながら、きれいに整理できるのがMarkdownの魅力です。勉強ノートやレポート作成に役立つので、一度試してみるとよいでしょう。
+
+&nbsp;
+
+</div>
+
+<div>
+
+&nbsp;
+
+&nbsp;
+
+</div>
+
+<div id="footer" class="fade">
+
+----------
+本ページは[Markdown AI](https://mdown.ai/)を利用して制作されました。ご意見は[Twitter](https://x.com/WmsRYsvIUc81359)のDMまでどうぞ。
+
+&nbsp;
+
+</div>
